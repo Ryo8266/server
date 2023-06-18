@@ -1,0 +1,124 @@
+datasource db {
+    provider = "mongodb"
+    url      = env("DATABASE_URL")
+}
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+model Account {
+    id                 String            @id @default(auto()) @map("_id") @db.ObjectId
+    userName           String            @unique
+    Permission         Permission?       @relation(fields: [permissionCode], references: [Ma])
+    permissionCode     String
+    hashedPassword     String            
+    email              String            @unique
+    sex                String
+    Date               String
+    Address            String
+    numberPhone        String            @unique
+    fullName           String
+    avatar             String            @default("")
+    Class              Class?            @relation(fields: [className], references: [name])
+    className          String            @default("")
+    SubjectTeacher     SubjectTeacher?   @relation(fields: [subjectTeacherName], references: [name])
+    subjectTeacherName String?           @default("")
+    Score              Score[]
+    teacherShudele     TeacherSchedule[]
+}
+
+model Permission {
+    id      String    @id @default(auto()) @map("_id") @db.ObjectId
+    Ma      String    @unique
+    Name    String    @unique
+    Account Account[]
+}
+
+model Menu {
+    id   String @id @default(auto()) @map("_id") @db.ObjectId
+    name String @unique
+    slug String @unique
+}
+
+model Class {
+    id              String            @id @default(auto()) @map("_id") @db.ObjectId
+    name            String            @unique
+    student         Account[]
+    ListClass       ListClass?        @relation(fields: [Khoi], references: [name])
+    Khoi            String
+    schedule        subjectInDate[]
+    TeacherSchedule TeacherSchedule[]
+}
+
+model Year {
+    id              String            @id @default(auto()) @map("_id") @db.ObjectId
+    name            String            @unique
+    isActive        Boolean           @default(false)
+    subjectInDate   subjectInDate[]
+    TeacherSchedule TeacherSchedule[]
+    Score Score[]
+}
+
+model ListClass {
+    id    String  @id @default(auto()) @map("_id") @db.ObjectId
+    name  String  @unique
+    class Class[]
+}
+
+model SubjectTeacher {
+    id       String    @id @default(auto()) @map("_id") @db.ObjectId
+    name     String    @unique
+    teachers Account[]
+}
+
+model Subject {
+    id              String            @id @default(auto()) @map("_id") @db.ObjectId
+    name            String            @unique
+    Khoi            String
+    subjectInDate   subjectInDate[]
+    Score           Score[]
+    TeacherSchedule TeacherSchedule[]
+}
+
+model subjectInDate {
+    id          String   @id @default(auto()) @map("_id") @db.ObjectId
+    Subject     Subject? @relation(fields: [subjectName], references: [name])
+    subjectName String?
+    time        String   @default("")
+    nameDate    String   @default("")
+    class       Class?   @relation(fields: [className], references: [name])
+    className   String
+    Year        Year?    @relation(fields: [yearName], references: [name])
+    yearName    String
+}
+
+model Score {
+    id          String   @id @default(auto()) @map("_id") @db.ObjectId
+    Score15m    Float   
+    Score45m    Float   
+    Score60m    Float  
+    average Float   @default(0.0)
+
+    semester    String  @default("")
+    Account     Account? @relation(fields: [accountId], references: [userName])
+    accountId   String?  
+    Subject     Subject?  @relation(fields: [subjectName], references: [name])
+    subjectName String
+    Year        Year?    @relation(fields: [yearName], references: [name])
+    yearName    String
+}
+
+model TeacherSchedule {
+    id          String   @id @default(auto()) @map("_id") @db.ObjectId
+    account     Account? @relation(fields: [accountName], references: [userName])
+    accountName String?
+    nameDate    String   @default("")
+    class       Class?   @relation(fields: [className], references: [name])
+    className   String
+    Subject     Subject? @relation(fields: [subjectName], references: [name])
+    subjectName String?
+    time        String
+    Year        Year?    @relation(fields: [yearName], references: [name])
+    yearName    String
+}
